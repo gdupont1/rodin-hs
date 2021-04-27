@@ -1,8 +1,8 @@
-`rodinapi` -- A Haskell package for dealing with Rodin files and Event-B structures
+`rodin-api` -- A Haskell package for dealing with Rodin files and Event-B structures
 
 # Synopsis
 
-`rodinapi` is a basic Haskell library that allows to handle [Event-B](http://www.event-b.org/) component and to parse [Rodin](http://www.event-b.org/install.html) (XML) files.
+`rodin-api` is a basic Haskell library that allows to handle [Event-B](http://www.event-b.org/) component and to parse [Rodin](http://www.event-b.org/install.html) (XML) files.
 
 This API can handle:
  * Machine components (`Rodin.Machine`)
