@@ -1,0 +1,103 @@
+% ------------------------------------------------------------------------
+% rodinlisting.tex
+% ------------------------------------------------------------------------
+%  Copyright (C) 2019  G. Dupont
+%  
+%  This program is free software: you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published by
+%  the Free Software Foundation, either version 3 of the License, or
+%  (at your option) any later version.
+%  
+%  This program is distributed in the hope that it will be useful,
+%  but WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%  
+%  You should have received a copy of the GNU General Public License
+%  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+% ------------------------------------------------------------------------
+% This file is a complimentary LaTeX file that should be included in any
+% file generated using the rodinapi-tex package API.
+% It provides the additional definitions needed for compiling documents.
+% ------------------------------------------------------------------------
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+%% Special macros for representing Event-B's "weird arrows"
+\newcommand{\leftleftrightarrow}{\leftarrow\mkern-14mu\leftrightarrow}
+\newcommand{\leftrightrightarrow}{\leftrightarrow\mkern-14mu\rightarrow}
+\newcommand{\leftleftrightrightarrow}{\leftrightarrow\mkern-14mu\leftrightarrow}
+\newcommand{\lhdminus}{\lhd\mkern-14mu-}
+\newcommand{\rhdminus}{\rhd\mkern-14mu-}
+\newcommand{\lhdplus}{\lhd\mkern-9mu-}
+\newcommand{\partialrightarrow}{\mkern6mu\mapstochar\mkern-6mu\rightarrow}
+\newcommand{\partialrightarrowtail}{\mkern9mu\mapstochar\mkern-9mu\rightarrowtail}
+\newcommand{\partialtwoheadrightarrow}{\mkern6mu\mapstochar\mkern-6mu\twoheadrightarrow}
+\newcommand{\twoheadrightarrowtail}{\rightarrowtail\mkern-18mu\twoheadrightarrow}
+
+%% Event-B language definition
+\lstdefinelanguage{eventb}{
+    morekeywords={
+        end,
+        context,
+        extends,
+        constants,
+        sets,
+        axioms,
+        machine,
+        refines,
+        sees,
+        variables,
+        invariants,
+        variants,
+        events,
+        then,
+        any,
+        theory,
+        theories,
+        import,
+        projects,
+        with,
+        where,
+        type,
+        parameters,
+        axiomatic,
+        definitions,
+        operators,
+        datatypes,
+        datatype,
+        args,
+        data,
+        types,
+        arguments,
+        constructors,
+        theorems,
+        when,
+        constructors,
+        well-definedness,
+        condition,
+        direct,
+        definition,
+        recursive,
+        case,
+        cases,
+        proof,
+        rules,
+        metavariables,
+        rewrite,
+        rewrites,
+        inference,
+        given,
+        infer
+    },
+    sensitive=false,
+    morecomment=[l]{--},
+    alsoletter=-
+}
+
+
+
+

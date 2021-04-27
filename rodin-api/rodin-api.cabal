@@ -1,0 +1,54 @@
+cabal-version:       3.0
+-------------------------------------------------------------------------
+-- Copyright (C) 2020  G. Dupont
+-- 
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-------------------------------------------------------------------------
+-- .cabal file for the rodinapi package
+-- Maintainer: guillaume.dupont@irit.fr
+-------------------------------------------------------------------------
+name:                rodin-api
+version:             0.1.0.0
+synopsis:            Basic Haskell API for handling Rodin/Event-B files
+description:         Haskell API that allows to read and handle Rodin files and Event-B components.
+                     This library is used by other projects.
+homepage:            https://www.irit.fr/~Guillaume.Dupont/
+license:             GPL-3.0-or-later
+license-file:        LICENSE
+author:              Guillaume Dupont
+maintainer:          guillaume.dupont@irit.fr
+copyright:           Copyright (c) 2020 G. Dupont
+build-type:          Simple
+extra-source-files:  README.md
+
+library
+  exposed-modules:
+    Rodin.Ascii,
+    Rodin.Internal.Util, Rodin.Internal.Wrap,
+    Rodin.Formula, Rodin.Formula.Ascii, Rodin.Formula.Tokenizer, Rodin.Formula.Tokenizer.Error, Rodin.Formula.UTF8, Rodin.Formula.Internal.Util,
+    Rodin.Context, Rodin.Context.Ascii, Rodin.Context.Read,
+    Rodin.Machine, Rodin.Machine.Ascii, Rodin.Machine.Read,
+    Rodin.ProofObligations, Rodin.ProofObligations.Ascii, Rodin.ProofObligations.Read,
+    Rodin.Theory, Rodin.Theory.Ascii, Rodin.Theory.Read
+  other-modules:
+    Rodin.Formula.Tokenizer.FTk,
+    Rodin.Internal.XML
+  -- other-extensions:    
+  build-depends:
+    base == 4.*,
+    either == 5.*,
+    transformers >=0.5 && <0.6,
+    xml >=1.3 && <1.4
+  hs-source-dirs:      src
+  default-language:    Haskell2010
