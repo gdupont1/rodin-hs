@@ -1,8 +1,8 @@
-`rodinapi-tex` -- A [Rodin API](https://github.com/gdupont1/rodinapi) extension for exporting Event-B structures to LaTeX
+`rodin-tex` -- A Rodin API extension for exporting Event-B structures to LaTeX
 
 # Synopsis
 
-`rodinapi-tex` is a [Rodin API](https://github.com/gdupont1/rodinapi) extension providing modules for exporting Event-B structures to LaTeX code.
+`rodin-tex` is a Rodin API extension providing modules for exporting Event-B structures to LaTeX code.
 
 The API can, among other things, "pretty-print" Event-B formulas to LaTeX with the correct symbols, and it can export components to complete files that can be imported using the `listings` LaTeX package.
 
@@ -55,7 +55,7 @@ Here is a minimal piece of LaTeX code that should work with a TeX file generated
 
 # Dependencies
 
-`rodinapi-tex` only depends on the [`rodinapi` package](https://github.com/gdupont1/rodinapi).
+`rodin-tex` only depends on the `rodin-api` package, contained in this repository.
 
 # License
 
