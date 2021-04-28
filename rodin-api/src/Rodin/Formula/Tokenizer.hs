@@ -29,19 +29,17 @@ in UTF-8, typically coming from a Rodin file.
 module Rodin.Formula.Tokenizer (
     isIdentChar,
     tokenize,
-    reduce,
     tkn,
     replaceEntities
     ) where
 
-import Rodin.Internal.Wrap (getContent,isError)
 import Rodin.Formula
 import Rodin.Formula.Tokenizer.FTk
 import Rodin.Formula.Tokenizer.Error
 import Rodin.Formula.UTF8
 import Rodin.Formula.Ascii
 import Data.List (groupBy)
-import Data.Either.Combinators (fromRight)
+import Data.Either.Combinators (fromRight, isLeft)
 import Data.Maybe (fromJust)
 import Data.Char (chr)
 import Data.Function (on)
@@ -104,13 +102,6 @@ explode input =
                                     ((reversef (c+:curr)):acc, FTk [] Void pos)
                           _     -> (acc,c+:curr)
 
--- | Pull out a list of token from a 'Rodin.Formula.Tokenizer.Error.FPWrap' and filter out
--- the spaces.
--- 
--- If the input is an error wrap, the empty list is returned.
-reduce :: FPWrap [Token] -> [Token]
-reduce = filter (not . isSpaceTk) . getContent []
-
 {-|
 'Rodin.Formula.Tokenizer.extract' is the second step in building the list of tokens corresponding
 to a given UTF8 sentence (after 'Rodin.Formula.Tokenizer.explode').
@@ -122,37 +113,35 @@ The function takes as argument a @printer@, that is a way to compare a candidate
 tokens. This in theory makes the function fairly generic, as providing another printer allows
 to parse other types of strings.
 
-The function returns a list of tokens or an error, all stored in an 'Rodin.Formula.Tokenizer.Error.FPWrap'.
-
 Note that the function (theoretically) also works with multi-characters operators. While
 'Rodin.Formula.Tokenizer.explode' yields one @FTk@ by operator, 'Rodin.Formula.Tokenizer.extract' attempt
 to aggregates as much @Operator@-natured @FTk@ and match them with existing operators. For instance:
         "-->" ==[explode]=> "-"[[O]],"-"[[O]],">"[[O]] ==[extract]=> "-->(TokOp TotalFunction)"
 -}
-extract :: (Token -> String) -> [FTk] -> FPWrap [Token]
+extract :: (Token -> String) -> [FTk] -> ParseResult [Token]
 extract printer tks =
     getTkns tks
-    where getTkns :: [FTk] -> FPWrap [Token] -- Main function: parse FTk to guess tokens
-          getTkns [] = return []             -- No FTk means no token
-          getTkns l@(tk:tks)                 -- We parse tokens one by one
-            | ftknature tk == Operator =     -- We aggregate consecutive operators if possible
+    where getTkns :: [FTk] -> ParseResult [Token] -- Main function: parse FTk to guess tokens
+          getTkns [] = return []                  -- No FTk means no token
+          getTkns l@(tk:tks)                      -- We parse tokens one by one
+            | ftknature tk == Operator =          -- We aggregate consecutive operators if possible
                 let (op,rem) = span ((== Operator) . ftknature) l in
                     (++) <$> guessOps tk (reverse op) [] <*> getTkns rem
             | otherwise =                    -- Other tokens are theoretically already well-formed
                 (++) <$> getOneTk tk <*> getTkns tks
-          getOneTk :: FTk -> FPWrap [Token]  -- Transform one FTk to one or more Tokens
+          getOneTk :: FTk -> ParseResult [Token]  -- Transform one FTk to one or more Tokens
           getOneTk f@(FTk ct na po) 
             | na == Number   = return $ [TokIdent ct]
             | na == Space    = return $ [parseTk printer TokSpace SimpleSpace ct] -- guess space
             | na == Ident    = return $ [search ct] -- guess token
             | na == Quote    = -- Special case of quotes ("-delimited): eat tokens until next '"'
                 if last ct /= '"' then
-                  failwith_ f $ "Unclosed quote"
+                  Left $ ParseError f UnclosedQuote
                 else
                   let ct' = init $ tail $ ct in return [search ct']
             | na == Operator = -- Try to guess an operator
                 case search ct of
-                  TokIdent _ -> failwith_ f $ "Unexpected operator '" ++ ct ++ "'"
+                  TokIdent _ -> Left $ ParseError f $ UnexpectedOperator ct
                   tk         -> return [tk]
             | na == Void = return [] -- Weird case: nature-less FTk
           search :: String -> Token  -- Try to match a sequence to a possible Token
@@ -163,9 +152,9 @@ extract printer tks =
             | isTk printer TokToken        TokOpenPar  tk = parseTk printer TokToken        TokOpenPar  tk
             | otherwise = TokIdent tk -- Default case: correspond to nothing... this must be an identifier? Or it will be filtered out by calling function.
           --          Ctxt   Consid.  Remainder
-          guessOps :: FTk -> [FTk] -> [FTk] -> FPWrap [Token] -- Guess a sequence of FTk
+          guessOps :: FTk -> [FTk] -> [FTk] -> ParseResult [Token] -- Guess a sequence of FTk
           guessOps ctx [] []  = return []
-          guessOps ctx [] rem = failwith_ ctx $ "Unexpected operator(s)"
+          guessOps ctx [] rem = Left $ ParseError ctx UnknownOperator
           guessOps ctx cs rem =
               let red = reduction $ reverse cs in
                 case search $ ftkcontent red of
@@ -173,7 +162,7 @@ extract printer tks =
                       guessOps ctx (tail cs) ((head cs):rem)
                   tk ->
                       let mop = guessOps ctx (reverse rem) [] in
-                          if isError mop then guessOps ctx ((head rem):cs) (tail rem)
+                          if isLeft mop then guessOps ctx ((head rem):cs) (tail rem)
                           else (tk:) <$> mop
           reduction :: [FTk] -> FTk -- Basically flattens a list of FTk
           reduction r = (head r) { ftkcontent = foldl (\acc -> \x -> acc ++ (ftkcontent x)) "" r }
@@ -202,14 +191,17 @@ replaceEntities s@(x:xs)
           replaceOne ('#':xs) = [chr $ read xs]
 
 -- | Tokenize a string of characters into a formula using given printer
-tokenize :: (Token -> String) -> String -> FPWrap Formula
+tokenize :: (Token -> String) -> String -> ParseResult Formula
 tokenize printer = extract printer . explode
 
 -- | Tokenize a string of characters into a formula using the default UTF8 printer
 -- ('Rodin.Formula.UTF8'), discarding eventual errors. An erroneous formula yields
 -- an empty formula
 tkn :: String -> Formula
-tkn = getContent [] . tokenize showUTF8 . replaceEntities
+tkn str =
+    case tokenize showUTF8 $ replaceEntities str of
+      Left _ -> []
+      Right l -> l
 
 
 

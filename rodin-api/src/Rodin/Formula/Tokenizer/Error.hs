@@ -1,21 +1,3 @@
-------------------------------------------------------------------------
--- File: Rodin/Formula/Tokenizer/Error.hs - Part of rodinapi
-------------------------------------------------------------------------
--- Copyright (C) 2019  G. Dupont
--- 
--- This program is free software: you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation, either version 3 of the License, or
--- (at your option) any later version.
--- 
--- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
--- 
--- You should have received a copy of the GNU General Public License
--- along with this program.  If not, see <https://www.gnu.org/licenses/>.
-------------------------------------------------------------------------
 {-|
 Module      : Rodin.Formula.Tokenizer.Error
 Description : Module for mangaging possible errors when tokenizing formulas
@@ -24,47 +6,51 @@ License     : GPL-3
 Maintainer  : guillaume.dupont@irit.fr
 
 This module provides types for managing errors that could occure when parsing a formula.
-This module is highly dependant on 'Rodin.Internal.Wrap'
 -}
 module Rodin.Formula.Tokenizer.Error (
-    FormulaParseError,FormulaParseWarning,
-    fpe_position,fpe_fragment,fpe_message,
-    FPWrap,failwith_
+    ErrorType(..),ParseError(..),ParseResult(..),
+    fpe_position,fpe_fragment,fpe_type
     ) where
 
-import Rodin.Internal.Wrap
 import Rodin.Formula.Tokenizer.FTk
-    
+
+-- | Type of errors that may occur during parsing
+data ErrorType =    
+      UnclosedQuote                 -- ^ Quote has not been closed
+    | UnexpectedOperator String     -- ^ Unexpected operator at this position
+    | UnknownOperator               -- ^ Impossible to parse tokens
+
+-- | Turn an error type into a string
+errstring :: ErrorType -> String
+errstring UnclosedQuote = "unclosed quote"
+errstring (UnexpectedOperator op) = "unexpected operator '" ++ op ++ "'"
+errstring (UnknownOperator) = "unknown operator(s)"
+
 -- | An error arrising when parsing a formula
-data FormulaParseError = FormulaParseError {
+data ParseError = ParseError {
     fragment :: FTk,        -- ^ Erroneous token
-    message :: String       -- ^ Error message
+    errorType :: ErrorType  -- ^ Error type
 }
 
 -- | Get the position of the error
-fpe_position :: FormulaParseError -> Int
+fpe_position :: ParseError -> Int
 fpe_position = ftkposition . fragment
 
 -- | Get the erroneous input fragment
-fpe_fragment :: FormulaParseError -> String
+fpe_fragment :: ParseError -> String
 fpe_fragment = ftkcontent . fragment
 
--- | Get the error message
-fpe_message :: FormulaParseError -> String
-fpe_message = message
+-- | Get the error type
+fpe_type :: ParseError -> ErrorType
+fpe_type = errorType
 
 -- | Convenient 'Show' instance for the 'FormulaParseError'
-instance Show FormulaParseError where
+instance Show ParseError where
   show pe =
-      "Error:" ++ show (ftkposition $ fragment pe) ++ ": at '" ++ (ftkcontent $ fragment pe) ++ "', " ++ (message pe)
+      "Error:" ++ show (ftkposition $ fragment pe) ++ ": at '" ++ (ftkcontent $ fragment pe) ++ "', " ++ (errstring $ errorType pe)
 
--- | Empty 'FormulaParseWarning' type (no warning available when parsing a formula) for building the 'Rodin.Internal.Wrap.Wrap' type
-data FormulaParseWarning
+-- | Result of parsing a formula.
+-- Type synonym for `Either` with `ParseError` on the left
+type ParseResult a = Either ParseError a
 
--- | 'Rodin.Internal.Wrap.Wrap' type synonym
-type FPWrap = Wrap FormulaParseError FormulaParseWarning
-
--- | 'Rodin.Internal.Wrap.failwith' override for convenient use
-failwith_ :: FTk -> String -> FPWrap a
-failwith_ = failwith' FormulaParseError
 

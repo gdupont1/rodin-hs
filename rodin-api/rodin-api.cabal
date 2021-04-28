@@ -35,7 +35,7 @@ extra-source-files:  README.md
 library
   exposed-modules:
     Rodin.Ascii,
-    Rodin.Internal.Util, Rodin.Internal.Wrap,
+    Rodin.Internal.Util, 
     Rodin.Formula, Rodin.Formula.Ascii, Rodin.Formula.Tokenizer, Rodin.Formula.Tokenizer.Error, Rodin.Formula.UTF8, Rodin.Formula.Internal.Util,
     Rodin.Context, Rodin.Context.Ascii, Rodin.Context.Read,
     Rodin.Machine, Rodin.Machine.Ascii, Rodin.Machine.Read,
