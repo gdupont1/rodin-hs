@@ -25,7 +25,7 @@ description:         Haskell API that allows to read and handle Rodin files and 
                      This library is used by other projects.
 homepage:            https://www.irit.fr/~Guillaume.Dupont/
 license:             GPL-3.0-or-later
-license-file:        ../LICENSE
+license-file:        LICENSE
 author:              Guillaume Dupont
 maintainer:          guillaume.dupont@irit.fr
 copyright:           Copyright (c) 2021 G. Dupont
