@@ -31,7 +31,9 @@ module Rodin.Theory.TeX where
 import Rodin.Internal.Util
 import Rodin.TeX
 import Rodin.Theory
+import Rodin.Formula
 import Rodin.Formula.Tokenizer
+import Rodin.Formula.Internal.Util
 import Rodin.Formula.TeX
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.NotationType'
@@ -44,7 +46,7 @@ instance ShowTeX OperatorProp where
   showTeX op =
       (if as then " " ++ italic "associative" else "") ++
       (if co then " " ++ italic "commutative" else "") ++
-      (if fo then " <expression>" else " <predicate>") ++
+      (if fo then " expression" else " predicate") ++
       " " ++ showTeX no
       where as = associative  op
             co = commutative  op
@@ -54,24 +56,26 @@ instance ShowTeX OperatorProp where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.OperatorArgument'
 instance ShowTeX OperatorArgument where
   showTeX oa =
-      id ++ ": " ++ printTeX ex
+      math $ printTeX' ((TokIdent id):(TokOp OfType):ex)
       where id = identifier oa
             ex = expression oa
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.OperatorWDCondition'
 instance ShowTeX OperatorWDCondition where
-  showTeX = printTeX . predicate
+  showTeX wdc =
+      (if any isNewline pr then printTeXLines'' 3 else math . printTeX') pr
+      where pr = predicate wdc
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.OperatorDirectDefinition'
 instance ShowTeX OperatorDirectDefinition where
   showTeX odd =
-      "\n" ++ ind 3 ++ "direct definition " ++ printTeXLines 4 fo
+      "\n" ++ ind 3 ++ "direct definition " ++ printTeXLines'' 4 fo
       where fo = formula odd
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.RecursiveDefinitionCase'
 instance ShowTeX RecursiveDefinitionCase where
   showTeX rdc =
-      "\n" ++ ind 4 ++ printTeX ex ++ " => " ++ printTeX fo
+      "\n" ++ ind 4 ++ (math $ printTeX' ex) ++ " => " ++ (math $ printTeX' fo)
       where ex = caseExpression rdc
             fo = caseFormula    rdc
 
@@ -100,7 +104,7 @@ instance ShowTeX TypeParameter where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.ConstructorArgument'
 instance ShowTeX ConstructorArgument where
   showTeX ca =
-      id ++ ":" ++ printTeX ty
+      math $ printTeX' $ (TokIdent id):(TokOp OfType):ty
       where id = caId   ca
             ty = caType ca
 
@@ -113,7 +117,7 @@ instance ShowTeX DataTypeConstructor where
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.TypeArgument'
 instance ShowTeX TypeArgument where
-  showTeX = printTeX . typeArg
+  showTeX = math . printTeX' . typeArg
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.DataTypeDefinition'
 instance ShowTeX DataTypeDefinition where
@@ -158,7 +162,7 @@ instance ShowTeX AxiomaticOperatorDefinition where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.AxiomaticDefinitionAxiom'
 instance ShowTeX AxiomaticDefinitionAxiom where
   showTeX ada =
-      "\n" ++ ind 3 ++ (italic $ escape_ la) ++ ": " ++ printTeXLines 4 pr
+      "\n" ++ ind 3 ++ (italic $ escape_ la) ++ ": " ++ printTeXLines'' 4 pr
       where la = aDefLabel     ada
             pr = aDefPredicate ada
 
@@ -178,24 +182,24 @@ instance ShowTeX AxiomaticDefinitionsBlock where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.Theorem'
 instance ShowTeX Theorem where
   showTeX th =
-      "\n" ++ ind 2 ++ (italic $ escape_ na) ++ ": " ++ printTeXLines 3 pr
+      "\n" ++ ind 2 ++ (italic $ escape_ na) ++ ": " ++ printTeXLines'' 3 pr
       where na = thName      th
             pr = thPredicate th
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.MetaVariable'
 instance ShowTeX MetaVariable where
   showTeX mv =
-      "\n" ++ ind 3 ++ id ++ ": " ++ printTeX ty
+      "\n" ++ ind 3 ++ (math $ printTeX' $ (TokIdent id):(TokOp OfType):ty)
       where id = mvId   mv
             ty = mvType mv
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.InferenceGiven'
 instance ShowTeX InferenceGiven where
-  showTeX = printTeX . givenPredicate
+  showTeX = math . printTeX' . givenPredicate
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.InferenceInfer'
 instance ShowTeX InferenceInfer where
-  showTeX = printTeX . inferPredicate
+  showTeX = math . printTeX' . inferPredicate
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.InferenceRule'
 instance ShowTeX InferenceRule where
@@ -210,7 +214,7 @@ instance ShowTeX InferenceRule where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.RewriteRuleRHS'
 instance ShowTeX RewriteRuleRHS where
   showTeX rh =
-      "\n" ++ ind 4 ++ la ++ ": " ++ printTeX pr ++ " $\\Rightarrow$ " ++ printTeX fo
+      "\n" ++ ind 4 ++ la ++ ": " ++ (math $ printTeX' $ pr) ++ " $\\Rightarrow$ " ++ (math $ printTeX' $ fo)
       where la = rhsLabel     rh
             pr = rhsPredicate rh
             fo = rhsFormula   rh
@@ -218,7 +222,7 @@ instance ShowTeX RewriteRuleRHS where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.RewriteRule'
 instance ShowTeX RewriteRule where
   showTeX rr =
-      "\n" ++ ind 3 ++ (italic $ escape_ la) ++ ": " ++ printTeX ls ++ (texlist "" rs)
+      "\n" ++ ind 3 ++ (italic $ escape_ la) ++ ": " ++ (math $ printTeX' $ ls) ++ (texlist "" rs)
       where la = rewLabel rr
             ap = rewApp   rr
             co = complete rr
