@@ -150,7 +150,7 @@ instance ShowTeX AxiomaticTypeDefinition where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.AxiomaticOperatorDefinition'
 instance ShowTeX AxiomaticOperatorDefinition where
   showTeX aod =
-      "\n" ++ ind 3 ++ (bold $ escape_ la) ++ showTeX pr ++ "(" ++ (texlist "," ar) ++ ") : " ++ printTeX ty ++
+      "\n" ++ ind 3 ++ (bold $ escape_ la) ++ showTeX pr ++ "(" ++ (texlist "," ar) ++ ") : " ++ (math $ printTeX' ty) ++
       (if not $ null wd then "\n" ++ ind 4 ++ "well-definedness " ++ (texlist "," wd) else "")
       where la = aOpLabel aod
             pr = aOpProp  aod
