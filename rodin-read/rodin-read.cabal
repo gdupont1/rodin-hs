@@ -34,6 +34,7 @@ extra-source-files:  README.md
 executable rodin-read
   main-is:             Main.hs
   other-modules:       Options,
+                       Rodin.Substitution, Rodin.Substitution.Label,
                        Rodin.Formula.Substitution, Rodin.Context.Substitution,
                        Rodin.Machine.Substitution, Rodin.Theory.Substitution,
                        Rodin.ProofObligations.Substitution
