@@ -23,7 +23,7 @@ version:             0.1.0.0
 synopsis:            Reading/Transformation tool for dealing with Rodin files
 homepage:            https://www.irit.fr/~Guillaume.Dupont/
 license:             GPL-3.0-or-later
-license-file:        ../LICENSE
+license-file:        LICENSE
 author:              Guillaume Dupont
 maintainer:          guillaume.dupont55@gmail.com
 category:            Utility
