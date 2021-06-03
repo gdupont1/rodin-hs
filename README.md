@@ -1,7 +1,13 @@
 # A set of Haskell modules for handling Rodin files
 
 Please refer to the README in each subdirectory for information on each
-submodule.
+subdirectory.
+
+**Note:** this Git repository contain a _submodule_. Do not forget to retrieve it as well:
+```
+> git submodule init
+> git submodule update
+```
 
 
 ## Installing `rodin-read`
