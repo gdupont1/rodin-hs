@@ -157,10 +157,10 @@ parseNewOperatorDefinition elt =
     NewOperatorDefinition {
         opLabel  = lkOrDef (pref Core "label") attrskv "",
         opProp   = parseOperatorProp elt,
-        opArgs   = parseChildren (isQName $ pref TheoryCore "operatorArgument"            ) parseOperatorArgument            elt,
-        opWD     = parseChildren (isQName $ pref TheoryCore "operatorWDcondition"         ) parseOperatorWDCondition         elt,
-        opDirDef = parseChildren (isQName $ pref TheoryCore "directOperatorDefinition"    ) parseOperatorDirectDefinition    elt,
-        opRecDef = parseChildren (isQName $ pref TheoryCore "recursiveOperationDefinition") parseOperatorRecursiveDefinition elt
+        opArgs   = parseChildren (isQName $ pref TheoryCore "operatorArgument"           ) parseOperatorArgument            elt,
+        opWD     = parseChildren (isQName $ pref TheoryCore "operatorWDcondition"        ) parseOperatorWDCondition         elt,
+        opDirDef = parseChildren (isQName $ pref TheoryCore "directOperatorDefinition"   ) parseOperatorDirectDefinition    elt,
+        opRecDef = parseChildren (isQName $ pref TheoryCore "recursiveOperatorDefinition") parseOperatorRecursiveDefinition elt
     }
     where attrskv = attrToTuple $ elAttribs elt
 

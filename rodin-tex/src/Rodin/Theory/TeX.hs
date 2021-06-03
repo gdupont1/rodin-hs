@@ -75,14 +75,15 @@ instance ShowTeX OperatorDirectDefinition where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.RecursiveDefinitionCase'
 instance ShowTeX RecursiveDefinitionCase where
   showTeX rdc =
-      "\n" ++ ind 4 ++ (math $ printTeX' ex) ++ " => " ++ (math $ printTeX' fo)
+      "\n" ++ ind 5 ++ (math $ printTeX' ex) ++ " => " ++ (printTeXLines'' 6 fo)
       where ex = caseExpression rdc
             fo = caseFormula    rdc
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.OperatorRecursiveDefinition'
 instance ShowTeX OperatorRecursiveDefinition where
   showTeX ord =
-      "\n" ++ ind 3 ++ "case " ++ ia ++ ":\n" ++ (texlist "" ca)
+      "\n" ++ ind 3 ++ "recursive definition" ++
+      "\n" ++ ind 4 ++ "case " ++ ia ++ ":" ++ (texlist "" ca)
       where ia = inductiveArgument ord
             ca = cases             ord
 
