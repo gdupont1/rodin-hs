@@ -56,8 +56,11 @@ instance Show Nature where
   show Space = "S"
   show Quote = "Q"
 
--- | Detect if given character could be part of an identifier
+-- | Detect if given character could be part of an identifier.
+-- *Fix:* we have to exclude `λ` (U+03BB, lambda) as it is an alpha
+-- character!
 isIdentChar :: Char -> Bool
+isIdentChar 'λ' = False
 isIdentChar c = C.isAlpha c || c == '_' || c == '\'' || c == '$'
 
 -- | Determine the nature of given character
