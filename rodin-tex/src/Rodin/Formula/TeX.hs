@@ -102,7 +102,7 @@ instance ShowTeX Operator where
   showTeX Range = ".."
   showTeX Plus = "+"
   showTeX Minus = "-"
-  showTeX Multiply = "."
+  showTeX Multiply = "\\ast"
   showTeX Division = "\\div"
   showTeX Exponent = "\\^"
   showTeX Lower = "<"
