@@ -38,8 +38,13 @@ data ExtendsContext = ExtendsContext {
 -- | Axiom definition
 data Axiom = Axiom {
     axLabel :: String,      -- ^ Axiom's label
-    axPred :: Formula,      -- ^ Axiom's predicate
-    axIsTheorem :: Bool     -- ^ Is the axiom a theorem
+    axPred :: Formula       -- ^ Axiom's predicate
+}
+
+-- | Theorem definition
+data Theorem = Theorem {
+    thLabel :: String,      -- ^ Theorem's label
+    thPred :: Formula       -- ^ Theorem's predicate
 }
 
 -- | Constant definition
@@ -57,6 +62,7 @@ data Context = Context {
     ctxName      :: String,                 -- ^ Context name
     ctxExtends   :: [ExtendsContext],       -- ^ Context extension relationships
     ctxAxioms    :: [Axiom],                -- ^ Axioms
+    ctxTheorems  :: [Theorem],              -- ^ Theorems
     ctxConstants :: [Constant],             -- ^ Constants
     ctxSets      :: [CarrierSet]            -- ^ Carrier sets
 }
