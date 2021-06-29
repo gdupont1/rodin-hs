@@ -37,24 +37,28 @@ data ExtendsContext = ExtendsContext {
 
 -- | Axiom definition
 data Axiom = Axiom {
-    axLabel :: String,      -- ^ Axiom's label
-    axPred :: Formula       -- ^ Axiom's predicate
+    axLabel :: String,        -- ^ Axiom's label
+    axPred :: Formula,        -- ^ Axiom's predicate
+    axComment :: Maybe String -- ^ Axiom's comment
 }
 
 -- | Theorem definition
 data Theorem = Theorem {
-    thLabel :: String,      -- ^ Theorem's label
-    thPred :: Formula       -- ^ Theorem's predicate
+    thLabel :: String,        -- ^ Theorem's label
+    thPred :: Formula,        -- ^ Theorem's predicate
+    thComment :: Maybe String -- ^ Theorem's comment
 }
 
 -- | Constant definition
 data Constant = Constant {
-    ctName :: String        -- ^ Constant's name
+    ctName :: String,          -- ^ Constant's name
+    ctComment :: Maybe String  -- ^ Constant's comment
 }
 
 -- | Carrier set definition
 data CarrierSet = CarrierSet {
-    csName :: String        -- ^ Set's name
+    csName :: String,         -- ^ Set's name
+    csComment :: Maybe String -- ^ Set's comment
 }
 
 -- | Context definition
@@ -64,7 +68,8 @@ data Context = Context {
     ctxAxioms    :: [Axiom],                -- ^ Axioms
     ctxTheorems  :: [Theorem],              -- ^ Theorems
     ctxConstants :: [Constant],             -- ^ Constants
-    ctxSets      :: [CarrierSet]            -- ^ Carrier sets
+    ctxSets      :: [CarrierSet],           -- ^ Carrier sets
+    ctxComment   :: Maybe String            -- ^ Context comment
 }
 
 

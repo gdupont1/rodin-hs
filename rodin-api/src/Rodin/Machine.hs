@@ -42,18 +42,21 @@ data SeesContext = SeesContext {
 
 -- | A variable
 data Variable = Variable {
-    vaIdentifier :: Formula                  -- ^ Variable's identifier
+    vaIdentifier :: Formula,                -- ^ Variable's identifier
+    vaComment :: Maybe String               -- ^ Variable's comment
 }
 
 -- | An invariant
 data Invariant = Invariant {
     invLabel :: String,                     -- ^ Invariant's label
-    invPred :: Formula                      -- ^ Invariant's formulation
+    invPred :: Formula,                     -- ^ Invariant's formulation
+    invComment :: Maybe String              -- ^ Invariant's comment
 }
 
 -- | A variant
 data Variant = Variant {
-    varExpression :: Formula                -- ^ Variant's expression
+    varExpression :: Formula,               -- ^ Variant's expression
+    varComment :: Maybe String              -- ^ Variant's comment
 }
 
 -- | Event refinement relationship
@@ -63,25 +66,29 @@ data RefinesEvent = RefinesEvent {
 
 -- | Event parameter
 data Parameter = Parameter {
-    paIdentifier :: Formula                  -- ^ Parameter's identifier
+    paIdentifier :: Formula,                -- ^ Parameter's identifier
+    paComment :: Maybe String               -- ^ Parameter's comment
 }
 
 -- | Event guard
 data Guard = Guard {
     guLabel :: String,                      -- ^ Guard's label
-    guPred :: Formula                       -- ^ Guard's expression
+    guPred :: Formula,                      -- ^ Guard's expression
+    guComment :: Maybe String               -- ^ Guard's comment
 }
 
 -- | Event witness
 data Witness = Witness {
     wiLabel :: Formula,                     -- ^ Witness' label
-    wiPred :: Formula                       -- ^ Witness' expression
+    wiPred :: Formula,                      -- ^ Witness' expression
+    wiComment :: Maybe String               -- ^ Witness' comment
 }
 
 -- | Event action
 data Action = Action {
     acLabel :: String,                      -- ^ Action's label
-    acAssignment :: Formula                 -- ^ Action's expression
+    acAssignment :: Formula,                -- ^ Action's expression
+    acComment :: Maybe String               -- ^ Action's comment
 }
 
 -- | Event convergence type
@@ -96,7 +103,8 @@ data Event = Event {
     evParameters  :: [Parameter],           -- ^ Event's parameters
     evGuards      :: [Guard],               -- ^ Event's guards
     evWitnesses   :: [Witness],             -- ^ Event's witnesses
-    evActions     :: [Action]               -- ^ Event's actions
+    evActions     :: [Action],              -- ^ Event's actions
+    evComment     :: Maybe String           -- ^ Event's comment
 }
 
 -- | A machine
@@ -107,7 +115,8 @@ data Machine = Machine {
     maVariables  :: [Variable],             -- ^ Machine's variables
     maInvariants :: [Invariant],            -- ^ Machine's invariants
     maVariants   :: [Variant],              -- ^ Machine's variant(s)
-    maEvents     :: [Event]                 -- ^ Machine's events
+    maEvents     :: [Event],                -- ^ Machine's events
+    maComment    :: Maybe String            -- ^ Machine's comment
 }
 
 
