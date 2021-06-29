@@ -48,6 +48,14 @@ instance ShowAscii Axiom where
       where lb = axLabel ax
             pr = axPred  ax
 
+-- | 'ShowAscii' instance for 'Rodin.Context.Theorem'
+instance ShowAscii Theorem where
+  showAscii th =
+      "\n" ++ ind 1 ++ lb ++ ": " ++
+          (if any isNewline pr then printAsciiLines 2 else printAscii) pr
+      where lb = thLabel th
+            pr = thPred  th
+
 -- | 'ShowAscii' instance for 'Rodin.Context.Constant'
 instance ShowAscii Constant where
   showAscii cst =
@@ -68,10 +76,12 @@ instance ShowAscii Context where
       (if not $ null cs then "\n" ++ "SETS"      ++ (asciilist "" cs) else "") ++
       (if not $ null ct then "\n" ++ "CONSTANTS" ++ (asciilist "" ct) else "") ++
       (if not $ null ax then "\n" ++ "AXIOMS"    ++ (asciilist "" ax) else "") ++
+      (if not $ null th then "\n" ++ "THEOREMS"  ++ (asciilist "" th) else "") ++
       "\nEND"
       where nm = ctxName      cx
             ec = ctxExtends   cx
             ax = ctxAxioms    cx
+            th = ctxTheorems  cx
             ct = ctxConstants cx
             cs = ctxSets      cx
 

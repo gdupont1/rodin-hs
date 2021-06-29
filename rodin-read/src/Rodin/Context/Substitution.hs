@@ -17,11 +17,16 @@ instance Substituable Axiom where
   substitute st axm =
       axm { axPred = substitute st $ axPred axm }
 
+instance Substituable Theorem where
+  substitute st thm =
+      thm { thPred = substitute st $ thPred thm }
+
 instance Substituable Constant
 instance Substituable CarrierSet
 
 instance Substituable Context where
   substitute st ctx = 
-      ctx { ctxAxioms = substituteAll st $ ctxAxioms ctx }
+      ctx { ctxAxioms   = substituteAll st $ ctxAxioms   ctx,
+            ctxTheorems = substituteAll st $ ctxTheorems ctx }
 
 

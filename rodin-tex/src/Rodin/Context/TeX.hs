@@ -49,6 +49,14 @@ instance ShowTeX Axiom where
       where lb = axLabel ax
             pr = axPred  ax
 
+-- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Context.Axiom'
+instance ShowTeX Theorem where
+  showTeX th =
+      "\n" ++ ind 1 ++ lb ++ ": " ++
+          (if any isNewline pr then printTeXLines'' 2 else math . printTeX') pr
+      where lb = thLabel th
+            pr = thPred  th
+
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Context.Context'
 instance ShowTeX Constant where
   showTeX cst =
@@ -69,10 +77,12 @@ instance ShowTeX Context where
       (if not $ null cs then "\n" ++ "SETS"      ++ (texlist "" cs) else "") ++
       (if not $ null ct then "\n" ++ "CONSTANTS" ++ (texlist "" ct) else "") ++
       (if not $ null ax then "\n" ++ "AXIOMS"    ++ (texlist "" ax) else "") ++
+      (if not $ null ax then "\n" ++ "THEOREMS"  ++ (texlist "" th) else "") ++
       "\nEND"
       where nm = ctxName      ctx
             ec = ctxExtends   ctx
             ax = ctxAxioms    ctx
+            th = ctxTheorems  ctx
             ct = ctxConstants ctx
             cs = ctxSets      ctx
 
