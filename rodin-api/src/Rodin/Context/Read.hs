@@ -90,14 +90,14 @@ parseContext name elt =
         ctxSets      = parseChildren (isQName $ pref Core "carrierSet"    ) parseCarrierSet     elt
     }
     where axAndTh = parseChildren (isQName $ pref Core "axiom") parseAxmThm elt
-          (axms, thms) = paritionEithers axAndTh
+          (axms, thms) = partitionEithers axAndTh
 
 -- | Read a context file denoted by @filename@ and extract the 'Rodin.Context.Context' from its content
 parseContextFile' :: String -> IO Context
 parseContextFile' filename =
     readFile filename >>= (return . parseXMLDoc) >>= (\r ->
         case r of
-          Nothing -> putStrLn "Error while parsing document" >> (return $ Context "??" [] [] [] [])
+          Nothing -> putStrLn "Error while parsing document" >> (return $ Context "??" [] [] [] [] [])
           Just elt -> return $ parseContext (getRodinFileName filename) elt)
 
 
