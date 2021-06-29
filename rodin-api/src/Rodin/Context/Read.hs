@@ -34,6 +34,7 @@ import Rodin.Formula.Tokenizer (tkn)
 import Rodin.Internal.XML
 import Rodin.Internal.Util (getRodinFileName)
 import Rodin.Context
+import Data.Either (partitionEithers)
 import Data.Either.Combinators (fromRight)
 import Data.List
 import Text.XML.Light
@@ -48,15 +49,18 @@ parseExtendsContext elt =
     }
     where attrskv = attrToTuple $ elAttribs elt
 
--- | Parse an @axiom@ XML element, holding an 'Rodin.Context.Axiom' element
-parseAxiom :: Element -> Axiom
-parseAxiom elt =
-    Axiom {
-        axLabel     =       lkOrDef (pref Core "label")     attrskv "",
-        axPred      = tkn $ lkOrDef (pref Core "predicate") attrskv "",
-        axIsTheorem =      (lkOrDef (pref Core "theorem")   attrskv "false") == "true"
-    }
+-- | Parse an @axiom@ XML element, holding an 'Rodin.Context.Axiom' element.
+-- Such elements represent both axioms and theorems (as decided by the `theorem`
+-- flag), but in the type, elements are separate.
+parseAxmThm :: Element -> Either Axiom Theorem
+parseAxmThm elt =
+    if isThm == "true"
+        then Left  $ Axiom   { axLabel = label, axPred = pred }
+        else Right $ Theorem { thLabel = label, thPred = pred }
     where attrskv = attrToTuple $ elAttribs elt
+          isThm = lkOrDef (pref Core "theorem") attrskv ""
+          label     =       lkOrDef (pref Core "label")     attrskv ""
+          pred      = tkn $ lkOrDef (pref Core "predicate") attrskv ""
 
 -- | Parse a @constant@ XML element, holding a 'Rodin.Context.Constant' element
 parseConstant :: Element -> Constant
@@ -80,10 +84,13 @@ parseContext name elt =
     Context {
         ctxName      = name,
         ctxExtends   = parseChildren (isQName $ pref Core "extendsContext") parseExtendsContext elt,
-        ctxAxioms    = parseChildren (isQName $ pref Core "axiom"         ) parseAxiom          elt,
+        ctxAxioms    = axms,
+        ctxTheorems  = thms,
         ctxConstants = parseChildren (isQName $ pref Core "constant"      ) parseConstant       elt,
         ctxSets      = parseChildren (isQName $ pref Core "carrierSet"    ) parseCarrierSet     elt
     }
+    where axAndTh = parseChildren (isQName $ pref Core "axiom") parseAxmThm elt
+          (axms, thms) = paritionEithers axAndTh
 
 -- | Read a context file denoted by @filename@ and extract the 'Rodin.Context.Context' from its content
 parseContextFile' :: String -> IO Context
