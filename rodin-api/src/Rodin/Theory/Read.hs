@@ -62,7 +62,8 @@ parseOperatorArgument :: Element -> OperatorArgument
 parseOperatorArgument elt =
     OperatorArgument {
         expression = tkn $ lkOrDef (pref Core "expression") attrskv "",
-        identifier =       lkOrDef (pref Core "identifier") attrskv ""
+        identifier =       lkOrDef (pref Core "identifier") attrskv "",
+        opaComment =       lookup  (pref Core "comment"   ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -70,22 +71,27 @@ parseOperatorArgument elt =
 parseOperatorWDCondition :: Element -> OperatorWDCondition
 parseOperatorWDCondition elt =
     OperatorWDCondition {
-        predicate = tkn $ lkOrDef (pref Core "predicate") (attrToTuple $ elAttribs elt) ""
+        predicate = tkn $ lkOrDef (pref Core "predicate") attrskv "", 
+        wdComment =       lookup  (pref Core "comment"  ) attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse an operator direct definition
 parseOperatorDirectDefinition :: Element -> OperatorDirectDefinition
 parseOperatorDirectDefinition elt =
     OperatorDirectDefinition {
-        formula = tkn $ lkOrDef (pref TheoryCore "formula") (attrToTuple $ elAttribs elt) ""
+        formula   = tkn $ lkOrDef (pref TheoryCore "formula") attrskv "",
+        ddComment =       lookup  (pref Core       "comment") attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse an operator recursive definition case
 parseRecursiveDefinitionCase :: Element -> RecursiveDefinitionCase
 parseRecursiveDefinitionCase elt =
     RecursiveDefinitionCase {
         caseExpression = tkn $ lkOrDef (pref Core       "expression") attrskv "",
-        caseFormula    = tkn $ lkOrDef (pref TheoryCore "formula")    attrskv ""
+        caseFormula    = tkn $ lkOrDef (pref TheoryCore "formula")    attrskv "",
+        caseComment    =       lookup  (pref Core       "comment")    attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -93,9 +99,11 @@ parseRecursiveDefinitionCase elt =
 parseOperatorRecursiveDefinition :: Element -> OperatorRecursiveDefinition
 parseOperatorRecursiveDefinition elt =
     OperatorRecursiveDefinition {
-        inductiveArgument = lkOrDef (pref TheoryCore "inductiveArgument") (attrToTuple $ elAttribs elt) "",
-        cases = parseChildren (isQName $ pref TheoryCore "recursiveDefinitionCase") parseRecursiveDefinitionCase elt
+        inductiveArgument = lkOrDef (pref TheoryCore "inductiveArgument") attrskv "",
+        cases             = parseChildren (isQName $ pref TheoryCore "recursiveDefinitionCase") parseRecursiveDefinitionCase elt,
+        recComment        = lookup  (pref Core       "comment")           attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse a theory import
 parseImportTheory :: Element -> ImportTheory
@@ -113,15 +121,20 @@ parseImportTheoryProject elt =
 -- | Parse a theory type parameter
 parseTypeParameter :: Element -> TypeParameter
 parseTypeParameter elt =
-    TypeParameter { typeIdentifier = lkOrDef (pref Core "identifier") (attrToTuple $ elAttribs elt) "" }
+    TypeParameter {
+        typeIdentifier = lkOrDef (pref Core "identifier") attrskv "",
+        typeComment    = lookup  (pref Core "comment"   ) attrskv
+    }
+    where attrskv = attrToTuple $ elAttribs elt
 
 
 -- | Parse a datatype constructor argument
 parseConstructorArgument :: Element -> ConstructorArgument
 parseConstructorArgument elt =
     ConstructorArgument {
-        caId   =       lkOrDef (pref Core       "identifier") attrskv "",
-        caType = tkn $ lkOrDef (pref TheoryCore "type")       attrskv ""
+        caId      =       lkOrDef (pref Core       "identifier") attrskv "",
+        caType    = tkn $ lkOrDef (pref TheoryCore "type")       attrskv "",
+        caComment =       lookup  (pref Core       "comment")    attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -129,8 +142,9 @@ parseConstructorArgument elt =
 parseDataTypeConstructor :: Element -> DataTypeConstructor
 parseDataTypeConstructor elt =
     DataTypeConstructor {
-        dtcId = lkOrDef (pref Core "identifier") attrskv "",
-        args  = parseChildren (isQName $ pref TheoryCore "constructorArgument") parseConstructorArgument elt
+        dtcId      = lkOrDef (pref Core "identifier") attrskv "",
+        args       = parseChildren (isQName $ pref TheoryCore "constructorArgument") parseConstructorArgument elt,
+        dtcComment = lookup  (pref Core "comment")    attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -145,47 +159,57 @@ parseTypeArgument elt =
 parseDataTypeDefinition :: Element -> DataTypeDefinition
 parseDataTypeDefinition elt =
     DataTypeDefinition {
-        dtId = lkOrDef (pref Core "identifier") (attrToTuple $ elAttribs elt) "",
+        dtId          = lkOrDef (pref Core "identifier") attrskv "",
         typeArguments = parseChildren (isQName $ pref TheoryCore "typeArgument") parseTypeArgument elt,
-        constructors  = parseChildren (isQName $ pref TheoryCore "datatypeConstructor") parseDataTypeConstructor elt
+        constructors  = parseChildren (isQName $ pref TheoryCore "datatypeConstructor") parseDataTypeConstructor elt,
+        dtComment     = lookup  (pref Core "comment")    attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 
 -- | Parse the definition of a new (non-axiomatic) operator
 parseNewOperatorDefinition :: Element -> NewOperatorDefinition
 parseNewOperatorDefinition elt =
     NewOperatorDefinition {
-        opLabel  = lkOrDef (pref Core "label") attrskv "",
-        opProp   = parseOperatorProp elt,
-        opArgs   = parseChildren (isQName $ pref TheoryCore "operatorArgument"           ) parseOperatorArgument            elt,
-        opWD     = parseChildren (isQName $ pref TheoryCore "operatorWDcondition"        ) parseOperatorWDCondition         elt,
-        opDirDef = parseChildren (isQName $ pref TheoryCore "directOperatorDefinition"   ) parseOperatorDirectDefinition    elt,
-        opRecDef = parseChildren (isQName $ pref TheoryCore "recursiveOperatorDefinition") parseOperatorRecursiveDefinition elt
+        opLabel   = lkOrDef (pref Core "label") attrskv "",
+        opProp    = parseOperatorProp elt,
+        opArgs    = parseChildren (isQName $ pref TheoryCore "operatorArgument"           ) parseOperatorArgument            elt,
+        opWD      = parseChildren (isQName $ pref TheoryCore "operatorWDcondition"        ) parseOperatorWDCondition         elt,
+        opDirDef  = parseChildren (isQName $ pref TheoryCore "directOperatorDefinition"   ) parseOperatorDirectDefinition    elt,
+        opRecDef  = parseChildren (isQName $ pref TheoryCore "recursiveOperatorDefinition") parseOperatorRecursiveDefinition elt,
+        opComment = lookup  (pref Core "comment") attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse the definition of an axiomatic type
 parseAxiomaticTypeDefinition :: Element -> AxiomaticTypeDefinition
 parseAxiomaticTypeDefinition elt =
-    AxiomaticTypeDefinition { aTypeId = lkOrDef (pref Core "identifier") (attrToTuple $ elAttribs elt) "" }
+    AxiomaticTypeDefinition {
+        aTypeId      = lkOrDef (pref Core "identifier") attrskv "",
+        aTypeComment = lookup  (pref Core "comment"   ) attrskv
+    }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse the definition of an axiomatic operator
 parseAxiomaticOperatorDefinition :: Element -> AxiomaticOperatorDefinition
 parseAxiomaticOperatorDefinition elt =
     AxiomaticOperatorDefinition {
-        aOpProp  = parseOperatorProp elt,
-        aOpLabel = lkOrDef (pref Core "label") (attrToTuple $ elAttribs elt) "",
-        aType    = tkn $ lkOrDef (pref TheoryCore "type") (attrToTuple $ elAttribs elt) "",
-        aOpArgs  = parseChildren (isQName $ pref TheoryCore "operatorArgument"   ) parseOperatorArgument    elt,
-        aOpWD    = parseChildren (isQName $ pref TheoryCore "operatorWDcondition") parseOperatorWDCondition elt
+        aOpProp    = parseOperatorProp elt,
+        aOpLabel   = lkOrDef (pref Core "label") attrskv "",
+        aType      = tkn $ lkOrDef (pref TheoryCore "type") attrskv "",
+        aOpArgs    = parseChildren (isQName $ pref TheoryCore "operatorArgument"   ) parseOperatorArgument    elt,
+        aOpWD      = parseChildren (isQName $ pref TheoryCore "operatorWDcondition") parseOperatorWDCondition elt,
+        aOpComment = lookup  (pref Core "comment") attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse the definition of an axiom
 parseAxiomaticDefinitionAxiom :: Element -> AxiomaticDefinitionAxiom
 parseAxiomaticDefinitionAxiom elt =
     AxiomaticDefinitionAxiom {
         aDefLabel     =       lkOrDef (pref Core "label"    ) attrskv "",
-        aDefPredicate = tkn $ lkOrDef (pref Core "predicate") attrskv ""
+        aDefPredicate = tkn $ lkOrDef (pref Core "predicate") attrskv "",
+        aDefComment   =       lookup  (pref Core "comment"  ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -193,18 +217,21 @@ parseAxiomaticDefinitionAxiom elt =
 parseAxiomaticDefinitionsBlock :: Element -> AxiomaticDefinitionsBlock
 parseAxiomaticDefinitionsBlock elt =
     AxiomaticDefinitionsBlock {
-        aDefBLabel = lkOrDef (pref Core "label") (attrToTuple $ elAttribs elt) "",
-        aDefBTypes = parseChildren (isQName $ pref TheoryCore "axiomaticTypeDefinition"    ) parseAxiomaticTypeDefinition     elt,
-        aDefBDef   = parseChildren (isQName $ pref TheoryCore "axiomaticOperatorDefinition") parseAxiomaticOperatorDefinition elt,
-        aDefBAx    = parseChildren (isQName $ pref TheoryCore "axiomaticDefinitionAxiom"   ) parseAxiomaticDefinitionAxiom    elt
+        aDefBLabel   = lkOrDef (pref Core "label") attrskv "",
+        aDefBTypes   = parseChildren (isQName $ pref TheoryCore "axiomaticTypeDefinition"    ) parseAxiomaticTypeDefinition     elt,
+        aDefBDef     = parseChildren (isQName $ pref TheoryCore "axiomaticOperatorDefinition") parseAxiomaticOperatorDefinition elt,
+        aDefBAx      = parseChildren (isQName $ pref TheoryCore "axiomaticDefinitionAxiom"   ) parseAxiomaticDefinitionAxiom    elt,
+        aDefBComment = lookup  (pref Core "comment") attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse the definition of an operator
 parseTheorem :: Element -> Theorem
 parseTheorem elt =
     Theorem {
         thName      =       lkOrDef (pref Core "label"    ) attrskv "",
-        thPredicate = tkn $ lkOrDef (pref Core "predicate") attrskv ""
+        thPredicate = tkn $ lkOrDef (pref Core "predicate") attrskv "",
+        thComment   =       lookup  (pref Core "comment")   attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -212,8 +239,9 @@ parseTheorem elt =
 parseMetaVariable :: Element -> MetaVariable
 parseMetaVariable elt =
     MetaVariable {
-        mvId   =       lkOrDef (pref Core       "identifier") attrskv "",
-        mvType = tkn $ lkOrDef (pref TheoryCore "type"      ) attrskv ""
+        mvId      =       lkOrDef (pref Core       "identifier") attrskv "",
+        mvType    = tkn $ lkOrDef (pref TheoryCore "type"      ) attrskv "",
+        mvComment =       lookup  (pref Core       "comment"   ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -222,7 +250,8 @@ parseInferenceGiven :: Element -> InferenceGiven
 parseInferenceGiven elt =
     InferenceGiven {
         givenPredicate = tkn $ lkOrDef (pref Core       "predicate") attrskv "",
-        givenHyp       =      (lkOrDef (pref TheoryCore "hyp"      ) attrskv "") == "true"
+        givenHyp       =      (lkOrDef (pref TheoryCore "hyp"      ) attrskv "") == "true",
+        givenComment   =       lookup  (pref Core       "comment"  ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -230,18 +259,21 @@ parseInferenceGiven elt =
 parseInferenceInfer :: Element -> InferenceInfer
 parseInferenceInfer elt = 
     InferenceInfer {
-        inferPredicate = tkn $ lkOrDef (pref Core "predicate") (attrToTuple $ elAttribs elt) ""
+        inferPredicate = tkn $ lkOrDef (pref Core "predicate") attrskv "",
+        inferComment   =       lookup  (pref Core "comment"  ) attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse an inference rule
 parseInferenceRule :: Element -> InferenceRule
 parseInferenceRule elt =
     InferenceRule {
-        infLabel = lkOrDef (pref Core   "label") attrskv "",
-        infApp   = lkOrDef (pref TheoryCore "applicability") attrskv "",
-        infDesc  = lkOrDef (pref TheoryCore "desc") attrskv "",
-        given    = parseChildren (isQName $ pref TheoryCore "given") parseInferenceGiven elt,
-        infer    = parseChildren (isQName $ pref TheoryCore "infer") parseInferenceInfer elt
+        infLabel   = lkOrDef (pref Core       "label"        ) attrskv "",
+        infApp     = lkOrDef (pref TheoryCore "applicability") attrskv "",
+        infDesc    = lkOrDef (pref TheoryCore "desc"         ) attrskv "",
+        given      = parseChildren (isQName $ pref TheoryCore "given") parseInferenceGiven elt,
+        infer      = parseChildren (isQName $ pref TheoryCore "infer") parseInferenceInfer elt,
+        infComment = lookup  (pref Core       "comment"      ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -249,9 +281,10 @@ parseInferenceRule elt =
 parseRewriteRuleRHS :: Element -> RewriteRuleRHS
 parseRewriteRuleRHS elt =
     RewriteRuleRHS {
-        rhsLabel     =       lkOrDef (pref Core       "label") attrskv "",
+        rhsLabel     =       lkOrDef (pref Core       "label"    ) attrskv "",
         rhsPredicate = tkn $ lkOrDef (pref Core       "predicate") attrskv "",
-        rhsFormula   = tkn $ lkOrDef (pref TheoryCore "formula") attrskv ""
+        rhsFormula   = tkn $ lkOrDef (pref TheoryCore "formula"  ) attrskv "",
+        rhsComment   =       lookup  (pref Core       "comment"  ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -259,12 +292,13 @@ parseRewriteRuleRHS elt =
 parseRewriteRule :: Element -> RewriteRule
 parseRewriteRule elt =
     RewriteRule {
-        rewLabel =       lkOrDef  (pref Core       "label"        ) attrskv "",
-        rewApp   =       lkOrDef  (pref TheoryCore "applicability") attrskv "",
-        complete =      (lkOrDef  (pref TheoryCore "complete"     ) attrskv "") == "true",
-        rewDesc  =       lkOrDef  (pref TheoryCore "desc"         ) attrskv "",
-        lhs      = tkn $ lkOrDef  (pref TheoryCore "formula"      ) attrskv "",
-        rhs      = parseChildren (isQName $ pref TheoryCore "rewriteRuleRHS") parseRewriteRuleRHS elt
+        rewLabel   =       lkOrDef  (pref Core       "label"        ) attrskv "",
+        rewApp     =       lkOrDef  (pref TheoryCore "applicability") attrskv "",
+        complete   =      (lkOrDef  (pref TheoryCore "complete"     ) attrskv "") == "true",
+        rewDesc    =       lkOrDef  (pref TheoryCore "desc"         ) attrskv "",
+        lhs        = tkn $ lkOrDef  (pref TheoryCore "formula"      ) attrskv "",
+        rhs        = parseChildren (isQName $ pref TheoryCore "rewriteRuleRHS") parseRewriteRuleRHS elt,
+        rewComment =       lookup   (pref Core       "comment"      ) attrskv 
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -272,11 +306,13 @@ parseRewriteRule elt =
 parseProofRulesBlock :: Element -> ProofRulesBlock
 parseProofRulesBlock elt =
     ProofRulesBlock {
-        prBLabel       = lkOrDef (pref Core "label") (attrToTuple $ elAttribs elt) "",
+        prBLabel       = lkOrDef (pref Core "label") attrskv "",
         metaVariables  = parseChildren (isQName $ pref TheoryCore "metaVariable" ) parseMetaVariable  elt,
         inferenceRules = parseChildren (isQName $ pref TheoryCore "inferenceRule") parseInferenceRule elt,
-        rewriteRules   = parseChildren (isQName $ pref TheoryCore "rewriteRule"  ) parseRewriteRule   elt
+        rewriteRules   = parseChildren (isQName $ pref TheoryCore "rewriteRule"  ) parseRewriteRule   elt,
+        prComment      = lookup  (pref Core "comment") attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse a theory
 parseTheory :: String -> Element -> Theory
@@ -289,15 +325,17 @@ parseTheory name elt =
         operators            = parseChildren (isQName $ pref TheoryCore "newOperatorDefinition"    ) parseNewOperatorDefinition elt,
         axiomaticDefinitions = parseChildren (isQName $ pref TheoryCore "axiomaticDefinitionsBlock") parseAxiomaticDefinitionsBlock elt,
         theorems             = parseChildren (isQName $ pref TheoryCore "theorem"                  ) parseTheorem elt,
-        proofRules           = parseChildren (isQName $ pref TheoryCore "proofRulesBlock"          ) parseProofRulesBlock elt
+        proofRules           = parseChildren (isQName $ pref TheoryCore "proofRulesBlock"          ) parseProofRulesBlock elt,
+        theoryComment        = lookup (pref Core "comment") attrskv
     }
+    where attrskv = attrToTuple $ elAttribs elt
 
 -- | Parse a theory file given as a @filename@ into a 'Rodin.Theory.Theory'
 parseTheoryFile' :: String -> IO Theory
 parseTheoryFile' filename =
     readFile filename >>= (return . parseXMLDoc) >>= (\r ->
         case r of
-          Nothing -> putStrLn "Error while parsing document" >> (return $ Theory "" [] [] [] [] [] [] [])
+          Nothing -> putStrLn "Error while parsing document" >> (return $ Theory "" [] [] [] [] [] [] [] Nothing)
           Just elt -> return $ parseTheory (getRodinFileName filename) elt)
 
 

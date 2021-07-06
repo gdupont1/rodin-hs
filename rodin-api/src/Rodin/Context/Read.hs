@@ -55,18 +55,20 @@ parseExtendsContext elt =
 parseAxmThm :: Element -> Either Axiom Theorem
 parseAxmThm elt =
     if isThm == "true"
-        then Left  $ Axiom   { axLabel = label, axPred = pred }
-        else Right $ Theorem { thLabel = label, thPred = pred }
+        then Left  $ Axiom   { axLabel = label, axPred = pred, axComment = comm }
+        else Right $ Theorem { thLabel = label, thPred = pred, thComment = comm }
     where attrskv = attrToTuple $ elAttribs elt
-          isThm = lkOrDef (pref Core "theorem") attrskv ""
+          isThm     =       lkOrDef (pref Core "theorem")   attrskv ""
           label     =       lkOrDef (pref Core "label")     attrskv ""
           pred      = tkn $ lkOrDef (pref Core "predicate") attrskv ""
+          comm      = lookup (pref Core "comment") attrskv
 
 -- | Parse a @constant@ XML element, holding a 'Rodin.Context.Constant' element
 parseConstant :: Element -> Constant
 parseConstant elt =
     Constant {
-        ctName =       lkOrDef (pref Core "identifier") attrskv ""
+        ctName    = lkOrDef (pref Core "identifier") attrskv "",
+        ctComment = lookup  (pref Core "comment")    attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -74,7 +76,8 @@ parseConstant elt =
 parseCarrierSet :: Element -> CarrierSet
 parseCarrierSet elt =
     CarrierSet {
-        csName =       lkOrDef (pref Core "identifier") attrskv ""
+        csName    = lkOrDef (pref Core "identifier") attrskv "",
+        csComment = lookup  (pref Core "comment")    attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -87,7 +90,8 @@ parseContext name elt =
         ctxAxioms    = axms,
         ctxTheorems  = thms,
         ctxConstants = parseChildren (isQName $ pref Core "constant"      ) parseConstant       elt,
-        ctxSets      = parseChildren (isQName $ pref Core "carrierSet"    ) parseCarrierSet     elt
+        ctxSets      = parseChildren (isQName $ pref Core "carrierSet"    ) parseCarrierSet     elt,
+        ctxComment   = lookup (pref Core "comment") (attrToTuple $ elAttribs elt)
     }
     where axAndTh = parseChildren (isQName $ pref Core "axiom") parseAxmThm elt
           (axms, thms) = partitionEithers axAndTh
@@ -97,7 +101,7 @@ parseContextFile' :: String -> IO Context
 parseContextFile' filename =
     readFile filename >>= (return . parseXMLDoc) >>= (\r ->
         case r of
-          Nothing -> putStrLn "Error while parsing document" >> (return $ Context "??" [] [] [] [] [])
+          Nothing -> putStrLn "Error while parsing document" >> (return $ Context "??" [] [] [] [] [] Nothing)
           Just elt -> return $ parseContext (getRodinFileName filename) elt)
 
 

@@ -60,7 +60,8 @@ parseSeesContext elt =
 parseVariable :: Element -> Variable
 parseVariable elt =
     Variable {
-        vaIdentifier = tkn $ lkOrDef (pref Core "identifier") attrskv ""
+        vaIdentifier = tkn $ lkOrDef (pref Core "identifier") attrskv "",
+        vaComment    =       lookup  (pref Core "comment")    attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -68,8 +69,9 @@ parseVariable elt =
 parseInvariant :: Element -> Invariant
 parseInvariant elt =
     Invariant {
-        invLabel =       lkOrDef (pref Core "label"    ) attrskv "",
-        invPred  = tkn $ lkOrDef (pref Core "predicate") attrskv ""
+        invLabel   =       lkOrDef (pref Core "label"    ) attrskv "",
+        invPred    = tkn $ lkOrDef (pref Core "predicate") attrskv "",
+        invComment =       lookup  (pref Core "comment"  ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -77,7 +79,8 @@ parseInvariant elt =
 parseVariant :: Element -> Variant
 parseVariant elt =
     Variant {
-        varExpression = tkn $ lkOrDef (pref Core "expression") attrskv ""
+        varExpression = tkn $ lkOrDef (pref Core "expression") attrskv "",
+        varComment    =       lookup  (pref Core "comment"   ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -93,7 +96,8 @@ parseRefinesEvent elt =
 parseParameter :: Element -> Parameter
 parseParameter elt =
     Parameter {
-        paIdentifier = tkn $ lkOrDef (pref Core "identifier") attrskv ""
+        paIdentifier = tkn $ lkOrDef (pref Core "identifier") attrskv "",
+        paComment    =       lookup  (pref Core "comment")    attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -101,8 +105,9 @@ parseParameter elt =
 parseGuard :: Element -> Guard
 parseGuard elt =
     Guard {
-        guLabel =       lkOrDef (pref Core "label"    ) attrskv "",
-        guPred  = tkn $ lkOrDef (pref Core "predicate") attrskv "" 
+        guLabel   =       lkOrDef (pref Core "label"    ) attrskv "",
+        guPred    = tkn $ lkOrDef (pref Core "predicate") attrskv "",
+        guComment =       lookup  (pref Core "comment"  ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -110,8 +115,9 @@ parseGuard elt =
 parseWitness :: Element -> Witness
 parseWitness elt =
     Witness {
-        wiLabel = tkn $ lkOrDef (pref Core "label"    ) attrskv "",
-        wiPred  = tkn $ lkOrDef (pref Core "predicate") attrskv ""
+        wiLabel   = tkn $ lkOrDef (pref Core "label"    ) attrskv "",
+        wiPred    = tkn $ lkOrDef (pref Core "predicate") attrskv "",
+        wiComment =       lookup  (pref Core "comment"  ) attrskv
     } 
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -120,7 +126,8 @@ parseAction :: Element -> Action
 parseAction elt =
     Action {
         acLabel      =       lkOrDef (pref Core "label"     ) attrskv "",
-        acAssignment = tkn $ lkOrDef (pref Core "assignment") attrskv ""
+        acAssignment = tkn $ lkOrDef (pref Core "assignment") attrskv "",
+        acComment    =       lookup  (pref Core "comment"   ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -135,7 +142,8 @@ parseEvent elt =
         evParameters  = parseChildren (isQName $ pref Core "parameter"   ) parseParameter    elt,
         evGuards      = parseChildren (isQName $ pref Core "guard"       ) parseGuard        elt,
         evWitnesses   = parseChildren (isQName $ pref Core "witness"     ) parseWitness      elt,
-        evActions     = parseChildren (isQName $ pref Core "action"      ) parseAction       elt 
+        evActions     = parseChildren (isQName $ pref Core "action"      ) parseAction       elt,
+        evComment     =                 lookup  (pref Core "comment"     ) attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -149,7 +157,8 @@ parseMachine name elt =
         maVariables  = parseChildren (isQName $ pref Core "variable"      ) parseVariable       elt,
         maInvariants = parseChildren (isQName $ pref Core "invariant"     ) parseInvariant      elt,
         maVariants   = parseChildren (isQName $ pref Core "variant"       ) parseVariant        elt,
-        maEvents     = parseChildren (isQName $ pref Core "event"         ) parseEvent          elt
+        maEvents     = parseChildren (isQName $ pref Core "event"         ) parseEvent          elt,
+        maComment    = lookup (pref Core "comment") attrskv
     }
     where attrskv = attrToTuple $ elAttribs elt
 
@@ -158,7 +167,7 @@ parseMachineFile' :: String -> IO Machine
 parseMachineFile' filename =
     readFile filename >>= (return . parseXMLDoc) >>= (\r ->
         case r of
-          Nothing -> putStrLn "Error while parsing document" >> (return $ Machine "??" [] [] [] [] [] [])
+          Nothing -> putStrLn "Error while parsing document" >> (return $ Machine "??" [] [] [] [] [] [] Nothing)
           Just elt -> return $ parseMachine (getRodinFileName filename) elt)
 
 parseMachineFile :: String -> IO (Maybe Machine)
