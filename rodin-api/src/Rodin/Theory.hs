@@ -164,7 +164,7 @@ data AxiomaticDefinitionsBlock =
         aDefBTypes :: [AxiomaticTypeDefinition],                -- ^ Block axiomatic types
         aDefBDef   :: [AxiomaticOperatorDefinition],            -- ^ Block axiomatic operators
         aDefBAx    :: [AxiomaticDefinitionAxiom],               -- ^ Block axioms
-        aDefComment :: Maybe String                             -- ^ Block comment
+        aDefBComment :: Maybe String                            -- ^ Block comment
     }
 
 -- | A theorem
@@ -211,7 +211,7 @@ data RewriteRuleRHS =
         rhsLabel     :: String,                                 -- ^ RHS label (when their are multipl)
         rhsPredicate :: Formula,                                -- ^ Pre-condition or "filter" for determining when this RHS is to be preferred
         rhsFormula   :: Formula,                                -- ^ RHS "result"
-        rhsCommernt  :: Maybe String                            -- ^ RHS comment
+        rhsComment   :: Maybe String                            -- ^ RHS comment
     }
 -- | A rewrite rule
 data RewriteRule =
