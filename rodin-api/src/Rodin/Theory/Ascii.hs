@@ -127,7 +127,7 @@ instance ShowAscii DataTypeDefinition where
 instance ShowAscii NewOperatorDefinition where
   showAscii nod =
       "\n" ++ ind 2 ++ la ++ showAscii pr ++ "(" ++ (asciilist "," ar) ++ ")" ++
-      (if not $ null wd then "\n" ++ ind 3 ++ "well-definedness " ++ asciilist "," wd else "") ++
+      (if not $ null wd then "\n" ++ ind 3 ++ "well-definedness condition " ++ asciilist "," wd else "") ++
       (if not $ null di then asciilist "" di else "") ++
       (if not $ null re then asciilist "" re else "")
       where la = opLabel  nod
