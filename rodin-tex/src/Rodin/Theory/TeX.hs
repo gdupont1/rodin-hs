@@ -133,7 +133,7 @@ instance ShowTeX DataTypeDefinition where
 instance ShowTeX NewOperatorDefinition where
   showTeX nod =
       "\n" ++ ind 2 ++ (bold $ escape_ la) ++ showTeX pr ++ "(" ++ (texlist "," ar) ++ ")" ++
-      (if not $ null wd then "\n" ++ ind 3 ++ "well-definedness " ++ texlist "," wd else "") ++
+      (if not $ null wd then "\n" ++ ind 3 ++ "well-definedness condition " ++ texlist "," wd else "") ++
       (if not $ null di then texlist "" di else "") ++
       (if not $ null re then texlist "" re else "")
       where la = opLabel  nod
