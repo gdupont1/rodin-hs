@@ -39,13 +39,13 @@ import Rodin.Formula.TeX
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.NotationType'
 instance ShowTeX NotationType where
   showTeX Prefix = ""
-  showTeX Infix = "INFIX "
+  showTeX Infix = "infix "
 
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.OperatorProp'
 instance ShowTeX OperatorProp where
   showTeX op =
-      (if as then " " ++ italic "associative" else "") ++
-      (if co then " " ++ italic "commutative" else "") ++
+      (if as then " " ++ "associative" else "") ++
+      (if co then " " ++ "commutative" else "") ++
       (if fo then " expression" else " predicate") ++
       " " ++ showTeX no
       where as = associative  op
