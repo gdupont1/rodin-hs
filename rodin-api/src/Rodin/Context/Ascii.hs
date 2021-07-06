@@ -37,36 +37,38 @@ import Rodin.Formula.Ascii
 -- | 'ShowAscii' instance for 'Rodin.Context.ExtendsContext'
 instance ShowAscii ExtendsContext where
   showAscii ec =
-    "\n" ++ ind 1 ++ tg
-    where tg = ecTarget ec
+      "\n" ++ ind 1 ++ tg
+      where tg = ecTarget ec
 
 -- | 'ShowAscii' instance for 'Rodin.Context.Axiom'
 instance ShowAscii Axiom where
   showAscii ax =
-      "\n" ++ ind 1 ++ lb ++ ": " ++
-          (if any isNewline pr then printAsciiLines 2 else printAscii) pr
-      where lb = axLabel ax
-            pr = axPred  ax
+      "\n" ++ ind 1 ++ lb ++ ": " ++ printAsciiAutoC 2 co pr
+      where lb = axLabel   ax
+            pr = axPred    ax
+            co = axComment ax
 
 -- | 'ShowAscii' instance for 'Rodin.Context.Theorem'
 instance ShowAscii Theorem where
   showAscii th =
-      "\n" ++ ind 1 ++ lb ++ ": " ++
-          (if any isNewline pr then printAsciiLines 2 else printAscii) pr
-      where lb = thLabel th
-            pr = thPred  th
+      "\n" ++ ind 1 ++ lb ++ ": " ++ printAsciiAutoC 2 co pr
+      where lb = thLabel   th
+            pr = thPred    th
+            co = thComment th
 
 -- | 'ShowAscii' instance for 'Rodin.Context.Constant'
 instance ShowAscii Constant where
   showAscii cst =
-      "\n" ++ ind 1 ++ nm 
+      "\n" ++ ind 1 ++ nm ++ printcomment co
       where nm = ctName cst
+            co = ctComment cst
 
 -- | 'ShowAscii' instance for 'Rodin.Context.CarrierSet'
 instance ShowAscii CarrierSet where
   showAscii cs =
-      "\n" ++ ind 1 ++ nm
+      "\n" ++ ind 1 ++ nm ++ printcomment co
       where nm = csName cs
+            co = csComment cs
 
 -- | 'ShowAscii' instance for 'Rodin.Context.Context'
 instance ShowAscii Context where

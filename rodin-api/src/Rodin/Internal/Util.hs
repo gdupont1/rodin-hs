@@ -51,6 +51,11 @@ circle before after = ((++) before) . (++ after)
 printlist :: (a -> String) -> String -> [a] -> String
 printlist printer c = intercalate c . map printer
 
+-- | Print comments if they are present
+printcomment :: Maybe String -> String
+printcomment Nothing = ""
+printcomment (Just c) = " -- " ++ c
+
 -- | Extract the name of a component from its filename.
 -- Note: Rodin does not store the name of a component inside its file; it actually
 -- "guesses" it from its filename ('/foo/bar/Machine.bum' => Machine). This function

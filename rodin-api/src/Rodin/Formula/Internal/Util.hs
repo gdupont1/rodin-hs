@@ -76,6 +76,19 @@ printLines :: ([Token] -> String) -> Int -> [Token] -> String
 printLines printLine indent =
     foldl (\acc -> (++) $ acc ++ "\n" ++ ind indent) "" . (printLines' printLine)
 
+-- | Print a list of tokens as either one line or multiplie lines depending of if
+-- it contains newline, and indent every line with the given indentation.
+printAuto :: ([Token] -> String) -> (Int -> [Token] -> String) -> Int -> [Token] -> String
+printAuto print1 printL ind tks =
+    if any isNewline tks
+        then printL ind tks
+        else print1 tks
+
+-- | Same as 'printAuto' but deal with comments as well.
+printAutoC :: (Maybe String -> [Token] -> String) -> (Maybe String -> Int -> [Token] -> String) -> Maybe String -> Int -> [Token] -> String
+printAutoC print1 printL co =
+    printAuto (print1 co) (printL co)
+
 {-| The following functions are mainly utilities for taking out typing information
 from formulas (especially proof obligations).
 -}

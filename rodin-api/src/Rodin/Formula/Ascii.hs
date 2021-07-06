@@ -143,6 +143,14 @@ instance ShowAscii Formula where
 printAscii :: [Token] -> String
 printAscii = foldl (\acc -> \x -> acc ++ (showAscii x)) ""
 
+-- | Print a list of token (hence a formula) as ASCII with no further treatment
+printAsciiC :: Maybe String -> [Token] -> String
+printAsciiC c tks =
+    let as = printAscii tks in
+        case c of
+          Nothing -> as
+          Just c -> as ++ " -- " ++ c
+
 -- | Print a list of token (hence a formula) as ASCII, providing a list of the resulting lines (without newline character)
 printAsciiLines' :: [Token] -> [String]
 printAsciiLines' = printLines' printAscii
@@ -150,6 +158,19 @@ printAsciiLines' = printLines' printAscii
 -- | Print a list of token (hence a formula) as ASCII, indenting each line with the given number of spaces
 printAsciiLines :: Int -> [Token] -> String
 printAsciiLines = printLines printAscii
+
+-- | Print a list of token (hence a formula) as ASCII, indenting each line with the given number of spaces, and put a comment (if applicable) at the end of the first line
+printAsciiLinesC :: Maybe String -> Int -> [Token] -> String
+printAsciiLinesC Nothing ind tks = printAsciiLines ind tks
+printAsciiLinesC (Just c) ind tks =
+    case printLines' printAscii tks of
+      [] -> ""
+      (x:xs) -> let x' = x ++ " -- " ++ c in (x':xs)
+
+-- | Print an ascii representation of the list of tokens (plus possible comments), on multiple
+-- lines if needed.
+printAsciiAutoC :: Maybe String -> Int -> [Token] -> String
+printAsciiAutoC = printAutoC printAsciiC printAsciiLinesC
 
 
 
