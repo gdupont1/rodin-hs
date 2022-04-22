@@ -68,6 +68,7 @@ nature :: Char -> Nature
 nature c
     | isIdentChar c = Ident
     | C.isNumber c = Number
+    | c == '\r' = Void
     | C.isSpace c = Space
     | c == '"' = Quote
     | otherwise = Operator
