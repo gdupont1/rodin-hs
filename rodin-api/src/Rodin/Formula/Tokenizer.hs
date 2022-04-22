@@ -71,7 +71,9 @@ of tokens.
 explode :: String -> [FTk]
 explode input =
     let (ftks,curr) = foldl eat ([],FTk [] Void 0) $ zip input [1..] in
-        reverse ((reversef curr):ftks)
+        case ftknature curr of
+          Void -> reverse ftks
+          _    -> reverse ((reversef curr):ftks)
     where eat :: ([FTk],FTk) -> (Char,Int) -> ([FTk],FTk)
           eat (acc,curr) (c,pos) =
               let nat = ftknature curr
