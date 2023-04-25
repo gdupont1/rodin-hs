@@ -2,5 +2,6 @@ packages: rodin-api
           rodin-tex
           substitution
           rodin-read
+--          proof-read
 
 

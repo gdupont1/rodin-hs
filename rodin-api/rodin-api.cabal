@@ -19,7 +19,7 @@ cabal-version:       3.0
 -- Maintainer: guillaume.dupont@irit.fr
 -------------------------------------------------------------------------
 name:                rodin-api
-version:             0.1.0.0
+version:             0.1.1.0
 synopsis:            Basic Haskell API for handling Rodin/Event-B files
 description:         Haskell API that allows to read and handle Rodin files and Event-B components.
                      This library is used by other projects.
@@ -40,6 +40,7 @@ library
     Rodin.Context, Rodin.Context.Ascii, Rodin.Context.Read,
     Rodin.Machine, Rodin.Machine.Ascii, Rodin.Machine.Read,
     Rodin.ProofObligations, Rodin.ProofObligations.Ascii, Rodin.ProofObligations.Read,
+    Rodin.Proofs, Rodin.Proofs.Ascii, Rodin.Proofs.Read,
     Rodin.Theory, Rodin.Theory.Ascii, Rodin.Theory.Read
   other-modules:
     Rodin.Formula.Tokenizer.FTk,
@@ -48,7 +49,8 @@ library
   build-depends:
     base == 4.*,
     either == 5.*,
-    transformers >=0.5 && <0.6,
-    xml >=1.3 && <1.4
+    transformers >=0.5 && <1.0,
+    split >= 0.2 && <1.0,
+    xml >=1.3 && <2.0
   hs-source-dirs:      src
   default-language:    Haskell2010
