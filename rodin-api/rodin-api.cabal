@@ -40,7 +40,6 @@ library
     Rodin.Context, Rodin.Context.Ascii, Rodin.Context.Read,
     Rodin.Machine, Rodin.Machine.Ascii, Rodin.Machine.Read,
     Rodin.ProofObligations, Rodin.ProofObligations.Ascii, Rodin.ProofObligations.Read,
-    Rodin.Proofs, Rodin.Proofs.Ascii, Rodin.Proofs.Read,
     Rodin.Theory, Rodin.Theory.Ascii, Rodin.Theory.Read
   other-modules:
     Rodin.Formula.Tokenizer.FTk,
