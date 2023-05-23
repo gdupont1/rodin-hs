@@ -49,6 +49,31 @@ times.
 Substitution mechanism is described below.
 
 
+# How to use the resulting TeX file
+
+`rodin-read`'s TeX file output rely on [`rodin-tex`](https://github.com/gdupont1/rodin-hs/tree/main/rodin-tex)
+and thus follows the same rules.
+
+The tool outputs one file per input. The output file is intended to be used
+with the `listing` package, either by copy-pasting it or using the importing
+command `\lstinputlisting`, together with the `rodinlisting.tex` extra TeX file,
+containing listing configuration and extra symbols.
+
+For best results, the minimum configuration for `listing` must include
+```latex
+\lstset{
+    mathescape=ture,        % This means that $...$ are rendered as standard LaTeX
+                            % math mode
+    escapeinside={(*}{*)},  % This means that (* ... *) allow to escape LaTeX commands
+                            % so that they are properly rendered
+    ...
+}
+```
+
+See the `latex` subdirectory for access to `rodinlisting.tex` + a minimum
+working example.
+
+
 # Substitution Mechanism
 
 A substitution file is a set of rules of the form
@@ -269,7 +294,7 @@ your parsing function, to be used with `ReadConfig`s.
 
 This is a bit more complicated. Output formats are managed in `Options` as well,
 and revolves around:
- 1. A particular kind of _typeclasses_
+ 1. A particular kind of _typeclass_
  2. The `WriteConfig` type, used to represent a writer/exporter configuration
  3. The `writeConfTable` constant, that contains a table of every type of
  exporter.
