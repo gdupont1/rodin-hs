@@ -38,7 +38,7 @@ import Rodin.Formula.Tokenizer.FTk
 import Rodin.Formula.Tokenizer.Error
 import Rodin.Formula.UTF8
 import Rodin.Formula.Ascii
-import Data.List (groupBy)
+import Data.List (groupBy, singleton)
 import Data.Either.Combinators (fromRight, isLeft)
 import Data.Maybe (fromJust)
 import Data.Char (chr)
@@ -134,47 +134,53 @@ extract printer tks =
           getOneTk :: FTk -> ParseResult [Token]  -- Transform one FTk to one or more Tokens
           getOneTk f@(FTk ct na po) 
             | na == Number   = return $ [TokIdent ct]
-            | na == Space    = return $ [parseTk printer TokSpace SimpleSpace ct] -- guess space
-            | na == Ident    = return $ [search ct] -- guess token
+            | na == Space    = singleton <$> parseTk printer TokSpace SimpleSpace f -- guess space
+            | na == Ident    = singleton <$> search f -- guess token
             | na == Quote    = -- Special case of quotes ("-delimited): eat tokens until next '"'
                 if last ct /= '"' then
                   Left $ ParseError f UnclosedQuote
                 else
-                  let ct' = init $ tail $ ct in return [search ct']
+                  let ct' = init $ tail $ ct in 
+                      singleton <$> search (f { ftkcontent = ct', ftkposition = po + 1 })
             | na == Operator = -- Try to guess an operator
-                case search ct of
-                  TokIdent _ -> Left $ ParseError f $ UnexpectedOperator ct
-                  tk         -> return [tk]
+                case search f of
+                  Right (TokIdent _) -> Left $ ParseError f $ UnexpectedOperator ct
+                  Right tk           -> return [tk]
+                  x                  -> singleton <$> x
             | na == Void = return [] -- Weird case: nature-less FTk
-          search :: String -> Token  -- Try to match a sequence to a possible Token
+          search :: FTk -> ParseResult Token  -- Try to match a sequence to a possible Token
           search tk
             | isTk printer TokOp           Top         tk = parseTk printer TokOp           Top         tk
             | isTk printer TokSpace        SimpleSpace tk = parseTk printer TokSpace        SimpleSpace tk
             | isTk printer TokSpecialIdent Integers    tk = parseTk printer TokSpecialIdent Integers    tk
             | isTk printer TokToken        TokOpenPar  tk = parseTk printer TokToken        TokOpenPar  tk
-            | otherwise = TokIdent tk -- Default case: correspond to nothing... this must be an identifier? Or it will be filtered out by calling function.
+            | otherwise = Right $ TokIdent $ ftkcontent tk -- Default case: correspond to nothing... this must be an identifier? Or it will be filtered out by calling function.
           --          Ctxt   Consid.  Remainder
           guessOps :: FTk -> [FTk] -> [FTk] -> ParseResult [Token] -- Guess a sequence of FTk
           guessOps ctx [] []  = return []
           guessOps ctx [] rem = Left $ ParseError ctx UnknownOperator
           guessOps ctx cs rem =
               let red = reduction $ reverse cs in
-                case search $ ftkcontent red of
-                  TokIdent id ->
+                case search red of
+                  Right (TokIdent id) ->
                       guessOps ctx (tail cs) ((head cs):rem)
-                  tk ->
+                  Right tk ->
                       let mop = guessOps ctx (reverse rem) [] in
                           if isLeft mop then guessOps ctx ((head rem):cs) (tail rem)
                           else (tk:) <$> mop
+                  x -> singleton <$> x
           reduction :: [FTk] -> FTk -- Basically flattens a list of FTk
           reduction r = (head r) { ftkcontent = foldl (\acc -> \x -> acc ++ (ftkcontent x)) "" r }
           -- Guess if current token candidate (tk) is a token of given family (elt) once passed
           -- in type constructor (fun) and in printer (printer)
-          isTk :: (Enum a) => (Token -> String) -> (a -> Token) -> a -> String -> Bool
-          isTk printer fun elt tk = tk `elem` (map (printer.fun) $ enumFrom elt)
+          isTk :: (Enum a) => (Token -> String) -> (a -> Token) -> a -> FTk -> Bool
+          isTk printer fun elt (FTk ct _ _) = ct `elem` (map (printer.fun) $ enumFrom elt)
           -- Same as isTk but actually yields the matching token
-          parseTk :: (Enum a) => (Token -> String) -> (a -> Token) -> a -> String -> Token
-          parseTk printer fun elt tk = fun $ fromJust $ lookup tk $ map (\x -> (printer $ fun x,x)) $ enumFrom elt
+          parseTk :: (Enum a) => (Token -> String) -> (a -> Token) -> a -> FTk -> ParseResult Token
+          parseTk printer fun elt tk@(FTk ct n p) =
+            case lookup ct $ map (\x -> (printer $ fun x, x)) $ enumFrom elt of
+              Nothing -> Left (ParseError tk UnknownOperator)
+              Just x -> Right $ fun x
 
 -- | Utility function for search-and-replacing HTML entities (@&...;@) with proper operators
 -- This is mainly used when parsing XML.
