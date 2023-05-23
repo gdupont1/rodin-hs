@@ -77,7 +77,7 @@ instance ShowTeX Context where
       (if not $ null cs then "\n" ++ "SETS"      ++ (texlist "" cs) else "") ++
       (if not $ null ct then "\n" ++ "CONSTANTS" ++ (texlist "" ct) else "") ++
       (if not $ null ax then "\n" ++ "AXIOMS"    ++ (texlist "" ax) else "") ++
-      (if not $ null ax then "\n" ++ "THEOREMS"  ++ (texlist "" th) else "") ++
+      (if not $ null th then "\n" ++ "THEOREMS"  ++ (texlist "" th) else "") ++
       "\nEND"
       where nm = ctxName      ctx
             ec = ctxExtends   ctx
