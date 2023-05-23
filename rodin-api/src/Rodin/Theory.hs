@@ -38,7 +38,7 @@ data OperatorProp =
     OperatorProp {
         associative  :: Bool,                                   -- ^ Is the operator associative
         commutative  :: Bool,                                   -- ^ Is the operator commutative
-        formulaType  :: Bool,                                   -- ^ Is the operator an expression or a predicate
+        formulaType  :: Bool,                                   -- ^ Is the operator an expression (true) or a predicate (false)
         notationType :: NotationType                            -- ^ Operator's notation type
     }
 -- | An operator argument
