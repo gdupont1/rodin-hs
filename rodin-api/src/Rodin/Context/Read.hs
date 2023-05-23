@@ -55,10 +55,10 @@ parseExtendsContext elt =
 parseAxmThm :: Element -> Either Axiom Theorem
 parseAxmThm elt =
     if isThm == "true"
-        then Left  $ Axiom   { axLabel = label, axPred = pred }
-        else Right $ Theorem { thLabel = label, thPred = pred }
-    where attrskv = attrToTuple $ elAttribs elt
-          isThm = lkOrDef (pref Core "theorem") attrskv ""
+        then Right $ Theorem { thLabel = label, thPred = pred }
+        else Left  $ Axiom   { axLabel = label, axPred = pred }
+    where attrskv   = attrToTuple $ elAttribs elt
+          isThm     = lkOrDef (pref Core "theorem") attrskv ""
           label     =       lkOrDef (pref Core "label")     attrskv ""
           pred      = tkn $ lkOrDef (pref Core "predicate") attrskv ""
 
