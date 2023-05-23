@@ -124,7 +124,7 @@ instance ShowTeX TypeArgument where
 instance ShowTeX DataTypeDefinition where
   showTeX dtd =
       "\n" ++ ind 2 ++ id ++ (if not $ null ar then "(" ++ texlist "," ar ++ ")" else "") ++
-      (if not $ null co then "\n" ++ ind 2 ++ "CONSTRUCTORS" ++ texlist "" co else "")
+      (if not $ null co then "\n" ++ ind 2 ++ "constructors" ++ texlist "" co else "")
       where id = dtId          dtd
             ar = typeArguments dtd
             co = constructors  dtd
