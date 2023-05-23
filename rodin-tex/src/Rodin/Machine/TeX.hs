@@ -106,8 +106,8 @@ instance ShowTeX Action where
 -- | 'Rodin.TeX.ShowTeX' instance for the 'Rodin.Machine.ConvergenceType' type
 instance ShowTeX ConvergenceType where
   showTeX Ordinary = ""
-  showTeX Convergent = " <convergent>"
-  showTeX Anticipated = " <anticipated>"
+  showTeX Convergent = " convergent"
+  showTeX Anticipated = " anticipated"
 
 -- | 'Rodin.TeX.ShowTeX' instance for the 'Rodin.Machine.Event' type
 instance ShowTeX Event where
