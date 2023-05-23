@@ -170,7 +170,7 @@ instance ShowTeX AxiomaticDefinitionAxiom where
 -- | 'Rodin.TeX.ShowTeX' instance for 'Rodin.Theory.AxiomaticDefinitionsBlock'
 instance ShowTeX AxiomaticDefinitionsBlock where
   showTeX adb =
-      ind 1 ++ la ++ ":" ++
+      "\n" ++ ind 1 ++ la ++ ":" ++
       (if not $ null ty then "\n" ++ ind 2 ++ "TYPES " ++ (texlist ", " ty) else "") ++
       (if not $ null de then "\n" ++ ind 2 ++ "OPERATORS" ++ (texlist "" de) else "") ++
       (if not $ null ax then "\n" ++ ind 2 ++ "AXIOMS" ++ (texlist "" ax) else "")
